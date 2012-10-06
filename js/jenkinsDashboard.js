@@ -57,10 +57,7 @@ function soundForCI(data, lastData) {
     if (lastData !== null) {
         $(data.jobs).each(function (index) {
             if (lastData.jobs[index] !== undefined) {
-                if (lastData.jobs[index].color === 'blue_anime' && this.color === 'red') {
-                    soundQueue.add('http://translate.google.com/translate_tts?q=build+' + this.name + '+faild&tl=en');
-                }
-                if (lastData.jobs[index].color === 'blue' && this.color === 'blue') {
+                if (lastData.jobs[index].color !== 'red' && this.color === 'red') {
                     soundQueue.add('sounds/build_fail_super_mario.mp3');
                 }
             }
@@ -95,10 +92,30 @@ $(document).ready(function () {
           var projectNodes = xmlDoc.childNodes[0].childNodes,
               jobs = [];
           $.each(projectNodes, function(index, projectNode) {
+            var color;
+            switch (projectNode.getAttribute("lastBuildStatus")) {
+              case "Success":
+                color = "blue";
+                break;
+              default:
+                color = "red";
+            }
+            switch (projectNode.getAttribute("activity")) {
+              case "Building":
+                color = "blue_anime";
+                break;
+              case "Paused":
+                color = "disabled";
+                break;
+              case "Has pending changes":
+                color = "yellow";
+                break;
+              default:
+            }
             jobs.push({
               name: projectNode.getAttribute("name"),
               url: projectNode.getAttribute("webUrl"),
-              color: (projectNode.getAttribute("lastBuildStatus") == "Success" ? "blue" : "red")
+              color: color
             });
           });
           return {jobs: jobs};
