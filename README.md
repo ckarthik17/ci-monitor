@@ -2,7 +2,8 @@ Jenkins Monitor
 =============
 
 A project aims at helping you show status of build in blue(building), red(failure), green(success) box on jenkins.
-By using jquery jsonp support and jenkins built-in jsonp reponse support, implementing this is just a piece of cake.
+Works with any CI server which supports cctray compatible xml. This includes Jenkins, Teamcity, Thoughtworks GO, CruiseControl, CruiseControl.rb, etc
+
 
 Why
 -------
@@ -15,8 +16,10 @@ a little bit and take a look at the builds on screen(it could be in big TV),whet
 How to Use
 -----------
 
-    git clone git://github.com/tuo/jenkins-monitor.git
+    git clone git://github.com/selvakn/ci-monitor.git
 
+  Clone this inside the installation of the CI. This is to avoid cross domain issue.
+  This is uncessary if the url supports CORS.
 
   Then copy or rename conf/config.js.sample to conf/config.js:
   
@@ -28,16 +31,10 @@ How to Use
 	
 	And open conf/config.js to change your jenkins ci address and jobs name you want to show on dashboard like following:
 	
-		var ci_url = "http://ci.jruby.org/view/Ruboto";
+		var ci_url = "view/Ruboto";
 		var jobs_to_be_filtered = ["apitest", "ergonomics"];
 
 
   Then run from command line: 
 
-		open dashboard.html -a safari
-		
-
-Contribute
-------------
-This project is still working in progress.
-Suggestions? Email to: clarkhtse@gmail.com
+		open http://ci.url/ci-monitor/index.html -a safari
