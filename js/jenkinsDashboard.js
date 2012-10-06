@@ -70,37 +70,40 @@ function soundForCI(data, lastData) {
 }
 $(document).ready(function () {
 
-    var ci_url = config.ci_url + "/api/json",
+    var ci_url = config.cctray_path,
         counter = 0,
         lastData = null,
         auto_refresh = setInterval(function () {
             counter++;
-            $.jsonp({
-                url: ci_url + "?format=json&jsonp=?",
-                dataType: "jsonp",
-                // callbackParameter: "jsonp",
-                timeout: 10000,
-                beforeSend: function (xhr) {
-                    if (counter === 1) {
-                        $.blockUI({
-                            message: '<h1 id="loading"><img src="img/busy.gif" />loading.....</h1>'
-                        });
-                    }
-                },
-                success: function (data, status) {
+            $.get(ci_url)
+                .success(function (data, status) {
                     $.unblockUI();
+                    data = ccXml2JSON(data);
                     lastData = soundForCI(data, lastData);
                     jenkinsDashboard.updateBuildStatus(data);
-                },
-                error: function (XHR, textStatus, errorThrown) {
+                })
+                .error(function (XHR, textStatus, errorThrown) {
                     if ($("#error_loading").length <= 0) {
                         $.blockUI({
                             message: '<h1 id="error_loading"> Ooooops, check out your network etc. Retrying........</h1>'
                         });
                     }
-                }
-            });
+                });
             soundQueue.play();
-        }, 4000);
-
+        }, 4000),
+        ccXml2JSON = function(xmlDoc) {
+          var projectNodes = xmlDoc.childNodes[0].childNodes,
+              jobs = [];
+          $.each(projectNodes, function(index, projectNode) {
+            jobs.push({
+              name: projectNode.getAttribute("name"),
+              url: projectNode.getAttribute("webUrl"),
+              color: (projectNode.getAttribute("lastBuildStatus") == "Success" ? "blue" : "red")
+            });
+          });
+          return {jobs: jobs};
+        };
+        $.blockUI({
+          message: '<h1 id="loading"><img src="img/busy.gif" />loading.....</h1>'
+        });
 });
